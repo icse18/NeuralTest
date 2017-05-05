@@ -1,10 +1,12 @@
 # Generating synthetic data for Neural Network Trianing
 import numpy as np
 
-# Predicate 1: x ** 2 + y **2 > z **2
-def predicate_1(x, y, z):
-    return True if ((x ** 2 + y ** 2) > z ** 2) else False
-    
+from predicates import predicate_1
+
+"""
+NOTE: Adjust the digits parameters of the lambda function f and g to 
+      balance the number of True / False data generated.
+"""
 
 def data_generator(num_data, digits):
     print("Generating data...")
@@ -12,10 +14,14 @@ def data_generator(num_data, digits):
     seen = set()
     vectors = []
     labels = []
+    num_true = 0
     while(current_data < num_data):
         f = lambda: int(''.join(np.random.choice(list("0123456789"))
                         for i in range(np.random.randint(1, digits + 1))))
-        x, y, z = f(), f(), f()
+        g = lambda: int(''.join(np.random.choice(list("0123456789"))
+                        for i in range(np.random.randint(1, digits + 3))))
+        
+        x, y, z = f(), f(), g()
         key = tuple(sorted((x,y)))
         if key in seen:
             continue
@@ -23,14 +29,20 @@ def data_generator(num_data, digits):
         seen.add(key)
         vectors.append(tuple((x,y,z)))
         labels.append(predicate_1(x, y, z))
-    
+        if (predicate_1(x,y,z)):
+            num_true += 1
+    print("Data generation completed...")
+    print("Writing to file...")
     f = open("vectors.txt", "w+")
-    f.write("\n".join("%s %s %s" % x for x in vectors))
+    f.write("\n".join("%s %s %s" % value for value in vectors))
     f.close()
     
     f = open("labels.txt", "w+")
-    for i in range(len(labels)):
-        f.write(str(labels[i]) + "\n")
+    f.write("\n".join("%s" % label for label in labels))
     f.close()
     
+    print("Number of True labels: %s" % num_true)
+    print("Number of False labels: %s" % (num_data - num_true))
     return(vectors, labels)
+
+data_generator(100000, 5)
