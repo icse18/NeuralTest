@@ -28,16 +28,19 @@ def data_generator(num_data, digits):
         current_data += 1
         seen.add(key)
         vectors.append(tuple((x,y,z)))
-        labels.append(predicate_1(x, y, z))
-        if (predicate_1(x,y,z)):
+        result = predicate_1(x,y,z)
+        if(result): 
+            labels.append(1)
             num_true += 1
+        else:
+            labels.append(0)
     print("Data generation completed...")
     print("Writing to file...")
-    f = open("vectors.txt", "w+")
+    f = open("vectors_50k_6d.txt", "w+")
     f.write("\n".join("%s %s %s" % value for value in vectors))
     f.close()
     
-    f = open("labels.txt", "w+")
+    f = open("labels_50k_6d.txt", "w+")
     f.write("\n".join("%s" % label for label in labels))
     f.close()
     
@@ -45,4 +48,4 @@ def data_generator(num_data, digits):
     print("Number of False labels: %s" % (num_data - num_true))
     return(vectors, labels)
 
-data_generator(100000, 5)
+data_generator(50000, 6)
