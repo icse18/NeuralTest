@@ -9,18 +9,19 @@ str_vectors = pd.read_csv("vectors_50k_5d.txt", header = None)
 str_labels = pd.read_csv("labels_50k_5d.txt", header = None)
 
 int_vectors = []
-
 for _, row in str_vectors.iterrows():
     int_vectors.append([int(value) for value in row[0].split(" ")])
-
-test_fraction = 0.9
-records = len(int_vectors)
-
 vectors = np.array(int_vectors)
-train_features_split, test_features_split = vectors[:int(records * test_fraction)], vectors[int(records * test_fraction)]
 
-labels = np.array(str_labels)
-train_targets_split, test_targets_split = labels[:int(records * test_fraction)], labels[int(records * test_fraction)]
+Y = (str_labels== 1).astype(np.int_)
+records = len(str_labels)
+shuffle = np.arange(records)
+np.random.shuffle(shuffle)
+test_fraction = 0.9
+
+train_split, test_split = shuffle[:int(records*test_fraction)], shuffle[int(records*test_fraction):]
+trainX, trainY = vectors[train_split,:], to_categorical(Y.values[train_split], 2)
+testX, testY = vectors[test_split,:], to_categorical(Y.values[test_split], 2)
 
 def build_model():
     tf.reset_default_graph()
@@ -35,11 +36,16 @@ def build_model():
     # Output
     net = tflearn.fully_connected(net, 2, activation = "softmax")
     net = tflearn.regression(net, optimizer = "sgd",
-                             learning_rate = 0.1, loss = "categorical_crossentropy")
+                             learning_rate = 0.001, loss = "categorical_crossentropy")
     
     model = tflearn.DNN(net)
     return model
 
 model = build_model()
-model.fit(train_features_split, train_targets_split, validation_set = 0.1, 
-          show_metric = True, batch_size = 100, n_epochs = 500)
+model.fit(trainX, trainY, validation_set = 0.1, 
+          show_metric = True, batch_size = 128, n_epoch = 100)
+
+
+predictions = (np.array(model.predict(testX))[:,0] >= 0.5).astype(np.int_)
+test_accuracy = np.mean(predictions == testY[:,0], axis=0)
+print("Test accuracy: ", test_accuracy)

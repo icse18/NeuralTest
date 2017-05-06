@@ -47,5 +47,3 @@ def data_generator(num_data, digits):
     print("Number of True labels: %s" % num_true)
     print("Number of False labels: %s" % (num_data - num_true))
     return(vectors, labels)
-
-data_generator(50000, 6)
