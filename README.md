@@ -1,4 +1,4 @@
-# GANSolver
+# NeuralTest
 
 This repository holds scripts that was written by me for my Undergraduate Research Project on Solving Inverse Function Problem in Automatic Software Testing Tool. 
 
