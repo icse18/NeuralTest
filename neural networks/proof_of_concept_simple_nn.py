@@ -3,10 +3,9 @@ import numpy as np
 import tensorflow as tf
 import tflearn 
 from tflearn.data_utils import to_categorical
-import matplotlib.pyplot as plt
 
-str_vectors = pd.read_csv("vectors_50k_5d.txt", header = None)
-str_labels = pd.read_csv("labels_50k_5d.txt", header = None)
+str_vectors = pd.read_csv("vectors.txt", header = None)
+str_labels = pd.read_csv("labels.txt", header = None)
 
 int_vectors = []
 for _, row in str_vectors.iterrows():
@@ -36,7 +35,7 @@ def build_model():
     # Output
     net = tflearn.fully_connected(net, 2, activation = "softmax")
     net = tflearn.regression(net, optimizer = "sgd",
-                             learning_rate = 0.001, loss = "categorical_crossentropy")
+                             learning_rate = 0.0001, loss = "categorical_crossentropy")
     
     model = tflearn.DNN(net)
     return model
