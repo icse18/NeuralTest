@@ -3,14 +3,13 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow.contrib.learn.python.learn.datasets import base
-from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import random_seed
 import pandas as pd
 import numpy
 
 class DataSet(object):
 
-  def __init__(self,
+  def __init__(self, 
                vectors,
                labels,
                seed=None):
@@ -76,12 +75,7 @@ class DataSet(object):
       return self._vectors[start:end], self._labels[start:end]
 
 
-def read_data_sets(train_dir,
-                   one_hot=False,
-                   dtype=dtypes.float32,
-                   reshape=True,
-                   validation_size=5000,
-                   seed=None):
+def read_data_sets(train_dir, validation_size=5000, seed=None):
   
   train_vectors = pd.read_csv("vectors_50k_5d.txt", header = None)
   train_labels = pd.read_csv("vectors_50k_5d.txt", header = None)
