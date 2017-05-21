@@ -13,14 +13,14 @@ def inference(vectors, hidden1_units, hidden2_units):
                 [VECTOR_SIZE, hidden1_units], 
                 stddev = 1.0 / math.sqrt(float(VECTOR_SIZE))), name = "weights")
         biases = tf.Variable(tf.zeros([hidden1_units]), name = "biases")
-        hidden1 = tf.nn.relu(tf.matmul(vectors, weights), biases)
+        hidden1 = tf.nn.relu(tf.matmul(vectors, weights) + biases)
         
     with tf.name_scope("hidden2"):
         weights = tf.Variable(tf.truncated_normal(
                 [hidden1_units, hidden2_units], 
                 stddev = 1.0 / math.sqrt(float(hidden1_units))), name = "weights")
         biases = tf.Variable(tf.zeros([hidden2_units]), name = "biases")
-        hidden2 = tf.nn.relu(tf.matmul(hidden1, weights), biases)  
+        hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)  
         
     with tf.name_scope("softmax_linear"):
         weights = tf.Variable(tf.truncated_normal(

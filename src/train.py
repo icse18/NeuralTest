@@ -1,13 +1,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+import data_handler as dh
+from six.moves import xrange
 import argparse
 import os.path
 import sys
 import time
-
-from six.moves import xrange
 import tensorflow as tf
 import neural_network
 
@@ -20,16 +19,12 @@ def placeholder_inputs(batch_size):
   labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
   return vectors_placeholder, labels_placeholder
 
-
-# MUST CHANGE
-def fill_feed_dict(data_set, images_pl, labels_pl):
-  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
-                                                 FLAGS.fake_data)
-  feed_dict = {
-      images_pl: images_feed,
-      labels_pl: labels_feed,
-  }
-  return feed_dict
+def fill_feed_dict(data_set, vectors_pl, labels_pl):
+    vectors_feed, labels_feed = data_set.next_batch(FLAGS.batch_size)
+    feed_dict = {
+            vectors_pl: vectors_feed,
+            labels_pl: labels_feed}
+    return feed_dict
 
 # MUST CHANGE
 def do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_set):
@@ -43,18 +38,16 @@ def do_eval(sess, eval_correct, images_placeholder, labels_placeholder, data_set
                                labels_placeholder)
     true_count += sess.run(eval_correct, feed_dict=feed_dict)
   precision = float(true_count) / num_examples
-  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
+  print('Num examples: %d\nNum correct: %d\nPrecision @ 1: %0.04f\n' %
         (num_examples, true_count, precision))
 
 
 def run_training():
-  data_sets = input_data.read_data_sets(FLAGS.input_data_dir, FLAGS.fake_data)
+  data_sets = dh.read_data_sets()
   with tf.Graph().as_default():
-    images_placeholder, labels_placeholder = placeholder_inputs(
+    vectors_placeholder, labels_placeholder = placeholder_inputs(
         FLAGS.batch_size)
-    logits = neural_network.inference(images_placeholder,
-                             FLAGS.hidden1,
-                             FLAGS.hidden2)
+    logits = neural_network.inference(vectors_placeholder, FLAGS.hidden1, FLAGS.hidden2)
     loss = neural_network.loss(logits, labels_placeholder)
     train_op = neural_network.training(loss, FLAGS.learning_rate)
     
@@ -69,11 +62,11 @@ def run_training():
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()
       feed_dict = fill_feed_dict(data_sets.train,
-                                 images_placeholder,
+                                 vectors_placeholder,
                                  labels_placeholder)
       _, loss_value = sess.run([train_op, loss],
                                feed_dict=feed_dict)
-
+      
       duration = time.time() - start_time
 
       if step % 100 == 0:
@@ -85,30 +78,30 @@ def run_training():
       if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.log_dir, 'model.ckpt')
         saver.save(sess, checkpoint_file, global_step=step)
-        print('Training Data Eval:')
+        print('Training Data Evaluation:')
         do_eval(sess,
                 eval_correct,
-                images_placeholder,
+                vectors_placeholder,
                 labels_placeholder,
                 data_sets.train)
-        print('Validation Data Eval:')
+        print('Validation Data Evaluation:')
         do_eval(sess,
                 eval_correct,
-                images_placeholder,
+                vectors_placeholder,
                 labels_placeholder,
                 data_sets.validation)
-        print('Test Data Eval:')
+        print('Test Data Evaluation:')
         do_eval(sess,
                 eval_correct,
-                images_placeholder,
+                vectors_placeholder,
                 labels_placeholder,
                 data_sets.test)
 
 
 def main(_):
-  if tf.gfile.Exists(FLAGS.log_dir):
-    tf.gfile.DeleteRecursively(FLAGS.log_dir)
-  tf.gfile.MakeDirs(FLAGS.log_dir)
+#  if tf.gfile.Exists(FLAGS.log_dir):
+#    tf.gfile.DeleteRecursively(FLAGS.log_dir)
+#  tf.gfile.MakeDirs(FLAGS.log_dir)
   run_training()
 
 
@@ -145,22 +138,10 @@ if __name__ == '__main__':
       help='Batch size.  Must divide evenly into the dataset sizes.'
   )
   parser.add_argument(
-      '--input_data_dir',
-      type=str,
-      default='/tmp/tensorflow/mnist/input_data',
-      help='Directory to put the input data.'
-  )
-  parser.add_argument(
       '--log_dir',
       type=str,
-      default='/tmp/tensorflow/mnist/logs/fully_connected_feed',
+      default='/tmp/tensorflow/neuraltest/logs/trainingresults',
       help='Directory to put the log data.'
-  )
-  parser.add_argument(
-      '--fake_data',
-      default=False,
-      help='If true, uses fake data for unit testing.',
-      action='store_true'
   )
 
   FLAGS, unparsed = parser.parse_known_args()

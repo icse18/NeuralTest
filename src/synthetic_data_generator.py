@@ -28,19 +28,19 @@ def data_generator_numpy(train_data, test_data):
         labels.append(result)
 
     print("Writing to file...")
-    f = open("train_vectors.txt", "w+")
+    f = open("datasets\\train_vectors.txt", "w+")
     f.write("\n".join("%s %s %s" % value for value in vectors[:train_data]))
     f.close()
     
-    f = open("train_labels.txt", "w+")
+    f = open("datasets\\train_labels.txt", "w+")
     f.write("\n".join("%s" % label for label in labels[:train_data]))
     f.close()
     
-    f = open("test_vectors.txt", "w+")
+    f = open("datasets\\test_vectors.txt", "w+")
     f.write("\n".join("%s %s %s" % value for value in vectors[train_data:]))
     f.close()
     
-    f = open("test_labels.txt", "w+")
+    f = open("datasets\\test_labels.txt", "w+")
     f.write("\n".join("%s" % label for label in labels[train_data:]))
     f.close()
     
