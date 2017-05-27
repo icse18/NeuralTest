@@ -83,6 +83,7 @@ def read_data_sets(validation_size=5000, seed=None):
   
     str_test_vectors = pd.read_csv("datasets\\test_vectors.txt", header = None)
     str_test_labels = pd.read_csv("datasets\\test_labels.txt", header = None)
+    
     if not 0 <= validation_size <= len(str_train_vectors):
         raise ValueError(
                 'Validation size should be between 0 and {}. Received: {}.'
@@ -92,14 +93,12 @@ def read_data_sets(validation_size=5000, seed=None):
     for _, row in str_train_vectors.iterrows():
         train_vectors_list.append([int(value) for value in row[0].split(" ")])
     train_vectors = np.array(train_vectors_list)
-    
     train_labels = (np.transpose((str_train_labels== 1).astype(np.int_))).values
     
     test_vectors_list = []
     for _, row in str_test_vectors.iterrows():
         test_vectors_list.append([int(value) for value in row[0].split(" ")])
     test_vectors = np.array(test_vectors_list)    
-    
     test_labels = (np.transpose((str_test_labels== 1).astype(np.int_))).values[0]
     
     validation_vectors = train_vectors[:validation_size]
