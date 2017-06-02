@@ -50,14 +50,17 @@ def generate_recursive_data(num_data, maximum):
     listOfLabels = []
     seen = set()
     while count < num_data:
-        predicate_input = random.uniform(0, maximum)
-        label = recursive_predicate_1(predicate_input)
-        key = label
+        predicate_input = int(random.uniform(0, maximum))
+        label = int(recursive_predicate_1(predicate_input))
+        key = predicate_input
         if key in seen:
             continue
+        seen.add(predicate_input)
         listOfVectors.append(predicate_input)
         listOfLabels.append(label)
         count += 1
     write_to_file("vectors", listOfVectors)
     write_to_file("labels", listOfLabels)
     return listOfVectors, listOfLabels       
+
+generate_recursive_data(100, 500)

@@ -12,4 +12,4 @@ def continuous_predicate_1(vector):
 
 def recursive_predicate_1(n):
 #   Recursive function such as Fibonacci function
-    return (((1 + sqrt(5)) ** n) - (1-sqrt(5)) ** n) / ((2 **n) * sqrt(5))
+    return (((1 + sqrt(5)) ** n) - (1 - sqrt(5)) ** n) / ((2 ** n) * sqrt(5))
