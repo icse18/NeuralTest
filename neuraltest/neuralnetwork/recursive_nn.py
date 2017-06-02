@@ -44,7 +44,4 @@ def loss(output, labels):
 
 def training(loss, learning_rate=0.001):
     train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-    return train
-
-def evaluation(logits, labels_placeholder):
-    
+    return train    
