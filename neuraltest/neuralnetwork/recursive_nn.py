@@ -38,13 +38,13 @@ def inference(vectors, hidden1_units, hidden2_units, dprobability=0.75):
         output = tf.nn.relu(tf.matmul(hidden2, weights) + biases)
     return output
 
-def loss(output, labels):
+def loss(output, labels): 
+    # regression problem: reduce mean square error
     return tf.reduce_mean(tf.square(tf.sub(output - labels)))
 
 def training(loss, learning_rate=0.001):
     train = tf.train.AdamOptimizer(learning_rate).minimize(loss)
     return train
 
-def evaluation(logits, labels):
-    correct = tf.nn.in_top_k(logits, labels, 1)
-    return tf.reduce_sum(tf.cast(correct, tf.int32))
+def evaluation(logits, labels_placeholder):
+    
