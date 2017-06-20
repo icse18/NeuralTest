@@ -1,3 +1,5 @@
+import tensorflow as tf
+import math
 import random
 
 def write_to_file(filename, data):
@@ -5,7 +7,7 @@ def write_to_file(filename, data):
     f = open(filename, "w+")
     f.write("\n".join("%s" % value for value in data))
     f.close()
-
+    
 def uniform_vector(minimum, maximum, size):
 #    Return a random floating point number N such that a <= N <= b for a <= b 
 #    and b <= N <= a for b < a.
@@ -17,3 +19,10 @@ def uniform_vector(minimum, maximum, size):
         count += 1
         vector.append(random.uniform(minimum, maximum))
     return vector    
+
+def weight_initializer(tensor_shape):
+    return tf.Variable(tf.truncated_normal(tensor_shape),
+                       stddev= 1.0 / math.sqrt(float(tensor_shape[0])))
+
+def bias_initializer(tensor_shape):
+    return tf.Variable(tf.zeros(tensor_shape[0]))
