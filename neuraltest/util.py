@@ -20,9 +20,9 @@ def uniform_vector(minimum, maximum, size):
         vector.append(random.uniform(minimum, maximum))
     return vector    
 
-def weight_initializer(tensor_shape):
-    return tf.Variable(tf.truncated_normal(tensor_shape),
-                       stddev= 1.0 / math.sqrt(float(tensor_shape[0])))
+def weight_initializer(input_units, hidden_units):
+    return tf.Variable(tf.truncated_normal([input_units, hidden_units]),
+                       stddev= 1.0 / math.sqrt(float(input_units)))
 
-def bias_initializer(tensor_shape):
-    return tf.Variable(tf.zeros(tensor_shape[0]))
+def bias_initializer(hidden_units):
+    return tf.Variable(tf.zeros(hidden_units))
