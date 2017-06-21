@@ -1,45 +1,31 @@
-from util import weight_initializer
-from util import bias_initializer
+from util import layer_initializer
+import numpy as np
 import tensorflow as tf
 
-def generator(z):
-    # dummy variables, will make implementation more generic afterwards.
-    input_units = 200
-    hidden_units_1 = 200
-    hidden_units_2 = 200
-    hidden_units_3 = 200
-    hidden_layer_1 = tf.nn.relu(tf.matmul(z, 
-                                          weight_initializer(input_units, 
-                                                             hidden_units_1)) + 
-                                            bias_initializer(hidden_units_1))
-    hidden_layer_2 = tf.nn.relu(tf.matmul(hidden_layer_1, 
-                                          weight_initializer(hidden_units_1, 
-                                                             hidden_units_2)) + 
-                                            bias_initializer(hidden_units_2))
-    g_prob = tf.nn.sigmoid(tf.matmul(hidden_layer_2, 
-                                          weight_initializer(hidden_units_2, 
-                                                             hidden_units_3)) + 
-                                            bias_initializer(hidden_units_3))
+def sample_z(m, n):
+    return np.random.uniform(-1., 1., size=[m, n])
+
+def generator(z, hidden_layer_shapes):
+    hidden_layer = []
+    for index, shape in enumerate(hidden_layer_shapes):
+        hidden_layer_weights, hidden_layer_bias = layer_initializer(shape)
+        if index == 0:
+            hidden_layer[index] = tf.nn.relu(tf.matmul(z, hidden_layer_weights) + hidden_layer_bias)
+        elif index != (len(hidden_layer_shapes)-1):
+            hidden_layer[index] = tf.nn.relu(tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias)
+        else:
+            g_prob = tf.nn.sigmoid(tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias)
     return g_prob
     
-    
-    
-def discriminator(x):
-    input_units = 200
-    hidden_units_1 = 200
-    hidden_units_2 = 200
-    hidden_units_3 = 200
-    hidden_layer_1 = tf.nn.relu(tf.matmul(x, 
-                                          weight_initializer(input_units, 
-                                                             hidden_units_1)) + 
-                                            bias_initializer(hidden_units_1))
-    hidden_layer_2 = tf.nn.relu(tf.matmul(hidden_layer_1, 
-                                          weight_initializer(hidden_units_1, 
-                                                             hidden_units_2)) + 
-                                            bias_initializer(hidden_units_2))
-    d_logit = (tf.matmul(hidden_layer_2, 
-                        weight_initializer(hidden_units_2, hidden_units_3)) + 
-                        bias_initializer(hidden_units_3))
-    d_prob = tf.nn.sigmoid(d_logit)
-    return d_prob, d_logit
-    
+def discriminator(x, hidden_layer_shapes):
+    hidden_layer = []
+    for index, shape in enumerate(hidden_layer_shapes):
+        hidden_layer_weights, hidden_layer_bias = layer_initializer(shape)
+        if index == 0:
+            hidden_layer[index] = tf.nn.relu(tf.matmul(x, hidden_layer_weights) + hidden_layer_bias)
+        elif index != (len(hidden_layer_shapes)-1):
+            hidden_layer[index] = tf.nn.relu(tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias)
+        else:
+            d_logit = tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias
+            d_prob = tf.nn.sigmoid(d_logit)
+    return d_prob, d_logit    

@@ -1,10 +1,13 @@
 import tensorflow as tf
 import math
+import os
 import random
 
-def write_to_file(filename, data):
+def write_to_file(filepath, filename, data):
     print("Writting to " + filename)
-    f = open(filename, "w+")
+    if not os.path.exists(filepath):
+        os.makedirs(filepath)
+    f = open(filepath + "\\" + filename, "w+")
     f.write("\n".join("%s" % value for value in data))
     f.close()
     
@@ -20,6 +23,11 @@ def uniform_vector(minimum, maximum, size):
         vector.append(random.uniform(minimum, maximum))
     return vector    
 
+def layer_initializer(shape):
+    layer_weight = weight_initializer(shape[0], shape[1])
+    layer_bias = bias_initializer(shape[1])
+    return layer_weight, layer_bias
+    
 def weight_initializer(input_units, hidden_units):
     return tf.Variable(tf.truncated_normal([input_units, hidden_units]),
                        stddev= 1.0 / math.sqrt(float(input_units)))
