@@ -1,6 +1,7 @@
 from network_util import layer_initializer
 import tensorflow as tf
 
+# z should be a vector [x, y, z, 0] or [x, y, z, 1]
 def generator(z, hidden_layer_shapes, dprob=0.75, is_train=True):
     hidden_layer = []
     with tf.variable_scope("generator", reuse=not is_train):
@@ -13,7 +14,8 @@ def generator(z, hidden_layer_shapes, dprob=0.75, is_train=True):
             else:
                 g_prob = tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias
     return g_prob
-    
+
+# x will be [x, y, z] (real / fake)
 def discriminator(x, hidden_layer_shapes, dprob=0.75, is_train=True):
     hidden_layer = []
     with tf.variable_scope("discriminator", reuse=not is_train):
@@ -26,4 +28,4 @@ def discriminator(x, hidden_layer_shapes, dprob=0.75, is_train=True):
             else:
                 d_logit = tf.matmul(hidden_layer[index - 1], hidden_layer_weights) + hidden_layer_bias
                 d_prob = tf.nn.sigmoid(d_logit)
-    return d_prob, d_logit    
+    return d_prob, d_logit
