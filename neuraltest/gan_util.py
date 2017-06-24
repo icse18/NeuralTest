@@ -7,11 +7,10 @@ import random
 def sample_z(m, n):
     return np.random.uniform(-1., 1., size=[m, n])
 
-def model_loss(input_real, input_z):
-    # need to add hidden_layer_shape to generator and discrminator. Implement this later.
-    g_model = generator(input_z)
-    d_model_real, d_logits_real = discriminator(input_real)
-    d_model_fake, d_logits_fake = discriminator(g_model)
+def model_loss(input_real, input_z, hidden_layer_shape_generator, hidden_layer_shape_discriminator):
+    g_model = generator(input_z, hidden_layer_shape_generator)
+    d_model_real, d_logits_real = discriminator(input_real, hidden_layer_shape_discriminator)
+    d_model_fake, d_logits_fake = discriminator(g_model, hidden_layer_shape_discriminator)
     d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=d_logits_real,
                                                                          labels=tf.fill(tf.shape(d_model_real),
                                                                                         random.uniform(0.7, 0.9))))
