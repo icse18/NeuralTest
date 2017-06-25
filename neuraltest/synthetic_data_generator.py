@@ -1,4 +1,5 @@
 from util import uniform_vector
+from predicates import predicate_1
 
 def data_generator(predicate, total_data, vector_size, min_val, max_val):
     count = 0

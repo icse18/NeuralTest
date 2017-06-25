@@ -2,6 +2,11 @@ from copy import deepcopy
 from unittest import mock
 import tensorflow as tf
 
+from gan import discriminator
+from gan import generator
+from gan_util import model_loss
+from gan_util import model_opt
+
 def test_safe(func):
     def func_wrapper(*args):
         with tf.Graph().as_default():
@@ -55,7 +60,8 @@ def test_discriminator(discriminator, tf_module):
                              "Discriminator Training (reuse=false) output")
         _assert_tensor_shape(logits, [None, 1], 
                              "Discriminator Training (reuse=false) logits")
-        assert mock_variable_scope.called, "tf.variable_scope not called in Discriminator Training (reuse=false)"
+        assert mock_variable_scope.called, \
+            "tf.variable_scope not called in Discriminator Training (reuse=false)"
         
         mock_variable_scope.reset_mock()
         
@@ -64,8 +70,10 @@ def test_discriminator(discriminator, tf_module):
                              "Discriminator Inference (reuse=true) output")
         _assert_tensor_shape(logits_reuse, [None, 1], 
                              "Discriminator Inference (reuse=true) logits")
-        assert mock_variable_scope.called, "tf.variable_scope not called in Discriminator Inference (reuse=true)"
-        assert mock_variable_scope.call_args == mock.call("discriminator", reuse=True), "tf.variable_scope called with wrong arguments in Discriminator Inference (reuse=True)"
+        assert mock_variable_scope.called, \
+            "tf.variable_scope not called in Discriminator Inference (reuse=true)"
+        assert mock_variable_scope.call_args == mock.call("discriminator", reuse=True), \
+            "tf.variable_scope called with wrong arguments in Discriminator Inference (reuse=True)"
 
 @test_safe
 def test_generator(generator, tf_module):
@@ -73,16 +81,20 @@ def test_generator(generator, tf_module):
         z = tf.placeholder(tf.float32, [None, 4])
         output = generator(z, [[4, 128],[128, 64],[64, 3]])
         _assert_tensor_shape(output, [None, 3], "Generator output (is_train=True)")
-        assert mock_variable_scope.called, "tf.variable_scope not called in Generator Training (reuse=false)"
-        assert mock_variable_scope.call_args == mock.call("generator", reuse=False), "tf.variable_scope called with wrong arguments in Generator Training (reuse=false)"
+        assert mock_variable_scope.called, \
+            "tf.variable_scope not called in Generator Training (reuse=false)"
+        assert mock_variable_scope.call_args == mock.call("generator", reuse=False), \
+            "tf.variable_scope called with wrong arguments in Generator Training (reuse=false)"
         
         mock_variable_scope.reset_mock()
         
         output = generator(z, [[4, 128],[128, 64],[64, 3]], is_train=False)
         _assert_tensor_shape(output, [None, 3], 
                              "Generator output (is_train=False)")
-        assert mock_variable_scope.called, "tf.variable_scope not called in Generator Training (reuse=True)"
-        assert mock_variable_scope.call_args == mock.call("generator", reuse=True), "tf.variable_scope called with wrong arguments in Generator Training (reuse=True)"
+        assert mock_variable_scope.called, \
+            "tf.variable_scope not called in Generator Training (reuse=True)"
+        assert mock_variable_scope.call_args == mock.call("generator", reuse=True), \
+            "tf.variable_scope called with wrong arguments in Generator Training (reuse=True)"
 
 @test_safe
 def test_model_loss(model_loss):
@@ -110,3 +122,9 @@ def test_model_opt(model_opt, tf_module):
                 labels=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]]))
         d_train_opt, g_train_opt = model_opt(d_loss, g_loss)
         assert mock_trainable_variables.called, "tf.mock_trainable_variables not called"
+    
+if __name__ == "__main__":
+    test_discriminator(discriminator, tf)
+    test_generator(generator, tf)
+    test_model_loss(model_loss)
+    test_model_opt(model_opt, tf)
