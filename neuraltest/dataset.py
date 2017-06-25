@@ -1,11 +1,14 @@
 import numpy as np
+import collections
+
+Datasets = collections.namedtuple('Datasets', ['train', 'validation', 'test'])
 
 class DataSet(object):
     def __init__(self, vectors,
-                 labels, num_examples):
+                 labels):
         self._vectors = vectors
         self._labels = labels
-        self._num_examples = num_examples
+        self._num_examples = len(vectors)
         self._epochs_completed = 0
         self._index_in_epoch = 0
     @property

@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from gan import discriminator
 from gan import generator
+from gan import model_inputs
 from gan_util import model_loss
 from gan_util import model_opt
 
@@ -32,14 +33,6 @@ def _check_input(tensor, shape, display_name, tf_name=None):
         assert tensor.name == tf_name, "{} has bad name. Found name {}".format(
                 display_name, tensor.name)
      
-def test_model_inputs(model_inputs):
-    real_vector_size = 3 # (x, y, z)
-    synthetic_vector_size = 4 # (x, y, z, 0) or (x, y, z, 1)
-    input_real, input_z, learn_rate = model_inputs(real_vector_size, synthetic_vector_size)
-    _check_input(input_real, [None, real_vector_size], "Real Input")
-    _check_input(input_z, [None, synthetic_vector_size], "Z Input")
-    _check_input(learn_rate, [], "Learning Rate")
-
 class TempoMock():
     def __init__(self, module, attribute_name):
         self.original_attribute = deepcopy(getattr(module, attribute_name))
@@ -51,11 +44,21 @@ class TempoMock():
     def __exit__(self, type, value, traceback):
         setattr(self.module, self.attribute_name, self.original_attribute)
 
+@test_safe
+def test_model_inputs(model_inputs):
+    vector_size = 3 # (x, y, z)
+    input_real, input_z, input_label, learn_rate = model_inputs(vector_size)
+    _check_input(input_real, [None, vector_size], "Real Input")
+    _check_input(input_z, [None, vector_size], "Z Input")
+    _check_input(input_label, [None, 1], "Label Input")
+    _check_input(learn_rate, [], "Learning Rate")
+
 @test_safe   
 def test_discriminator(discriminator, tf_module):
     with TempoMock(tf_module, "variable_scope") as mock_variable_scope:
         vector = tf.placeholder(tf.float32, [None, 3])
-        output, logits = discriminator(vector, [[3, 128],[128, 64],[64, 1]]) #
+        labels = tf.placeholder(tf.float32, [None, 1])
+        output, logits = discriminator(vector, labels, [[4, 128],[128, 64],[64, 1]]) #
         _assert_tensor_shape(output, [None, 1], 
                              "Discriminator Training (reuse=false) output")
         _assert_tensor_shape(logits, [None, 1], 
@@ -65,7 +68,7 @@ def test_discriminator(discriminator, tf_module):
         
         mock_variable_scope.reset_mock()
         
-        output_reuse, logits_reuse = discriminator(vector, [[3, 128],[128, 64],[64, 1]], reuse=True) #
+        output_reuse, logits_reuse = discriminator(vector, labels, [[4, 128],[128, 64],[64, 1]], reuse=True) #
         _assert_tensor_shape(output_reuse, [None, 1], 
                              "Discriminator Inference (reuse=true) output")
         _assert_tensor_shape(logits_reuse, [None, 1], 
@@ -78,8 +81,9 @@ def test_discriminator(discriminator, tf_module):
 @test_safe
 def test_generator(generator, tf_module):
     with TempoMock(tf_module, "variable_scope") as mock_variable_scope:
-        z = tf.placeholder(tf.float32, [None, 4])
-        output = generator(z, [[4, 128],[128, 64],[64, 3]])
+        z = tf.placeholder(tf.float32, [None, 3])
+        labels = tf.placeholder(tf.float32, [None, 1])
+        output = generator(z, labels, [[4, 128],[128, 64],[64, 3]])
         _assert_tensor_shape(output, [None, 3], "Generator output (is_train=True)")
         assert mock_variable_scope.called, \
             "tf.variable_scope not called in Generator Training (reuse=false)"
@@ -88,7 +92,7 @@ def test_generator(generator, tf_module):
         
         mock_variable_scope.reset_mock()
         
-        output = generator(z, [[4, 128],[128, 64],[64, 3]], is_train=False)
+        output = generator(z, labels, [[4, 128],[128, 64],[64, 3]], is_train=False)
         _assert_tensor_shape(output, [None, 3], 
                              "Generator output (is_train=False)")
         assert mock_variable_scope.called, \
@@ -99,10 +103,11 @@ def test_generator(generator, tf_module):
 @test_safe
 def test_model_loss(model_loss):
     hidden_layer_shape_generator = [[4, 128],[128, 64],[64, 3]]
-    hidden_layer_shape_discriminator = [[3, 128],[128, 64],[64, 1]]
+    hidden_layer_shape_discriminator = [[4, 128],[128, 64],[64, 1]]
     input_real = tf.placeholder(tf.float32, [None, 3])
-    input_z = tf.placeholder(tf.float32, [None, 4])
-    d_loss, g_loss = model_loss(input_real, input_z, hidden_layer_shape_generator, hidden_layer_shape_discriminator)
+    input_z = tf.placeholder(tf.float32, [None, 3])
+    input_label = tf.placeholder(tf.float32, [None, 1])
+    d_loss, g_loss = model_loss(input_real, input_z, input_label, hidden_layer_shape_generator, hidden_layer_shape_discriminator)
     _assert_tensor_shape(d_loss, [], "Discriminator Loss")
     _assert_tensor_shape(g_loss, [], "Generator Loss")
 
@@ -124,6 +129,7 @@ def test_model_opt(model_opt, tf_module):
         assert mock_trainable_variables.called, "tf.mock_trainable_variables not called"
     
 if __name__ == "__main__":
+    test_model_inputs(model_inputs)
     test_discriminator(discriminator, tf)
     test_generator(generator, tf)
     test_model_loss(model_loss)
