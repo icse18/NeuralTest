@@ -23,7 +23,7 @@ class DataSet(object):
     @property
     def epochs_completed(self):
         return self._epochs_completed
-    
+        
     def next_batch(self, batch_size, shuffle=True):
         start = self._index_in_epoch
         # Shuffle for the first epoch

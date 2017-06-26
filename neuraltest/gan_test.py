@@ -107,7 +107,7 @@ def test_model_loss(model_loss):
     input_real = tf.placeholder(tf.float32, [None, 3])
     input_z = tf.placeholder(tf.float32, [None, 3])
     input_label = tf.placeholder(tf.float32, [None, 1])
-    d_loss, g_loss = model_loss(input_real, input_z, input_label, hidden_layer_shape_generator, hidden_layer_shape_discriminator)
+    d_loss, g_loss, g_model = model_loss(input_real, input_z, input_label, hidden_layer_shape_generator, hidden_layer_shape_discriminator)
     _assert_tensor_shape(d_loss, [], "Discriminator Loss")
     _assert_tensor_shape(g_loss, [], "Generator Loss")
 

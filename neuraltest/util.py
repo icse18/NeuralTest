@@ -1,5 +1,13 @@
+import matplotlib.pyplot as plt
 import os
 import random
+
+def plot_loss(losses):
+    plt.figure(figsize=(10,8))
+    plt.plot(losses[0], label='Discriminative loss')
+    plt.plot(losses[1], label='Generative loss')
+    plt.legend()
+    plt.show()
 
 def write_to_file(filepath, filename, data):
     print("Writting to " + filename)
