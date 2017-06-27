@@ -37,20 +37,27 @@ def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer
                           "Discriminator Loss: {:.4f}...".format(train_loss_d),
                           "Generator Loss: {:.4f}...".format(train_loss_g))
                 losses.append((train_loss_d, train_loss_g))
-            if step % 1000 == 0:
-                example_z = np.random.uniform(20000, 60000, size=[batch_size, vector_size])
-                samples = sess.run(
-                        g_model,
-                        feed_dict={input_z: example_z, input_label: labels_feed})
-                print(example_z)
-                print(samples)
-                correct = 0
-                for index, element in enumerate(samples):
-                    prediction = predicate_1(element)
-                    if prediction == labels_feed[index]:
-                        correct += 1
-                print ("correct generated: " + str(correct))
+        
+        
+        corrects = []
+        for step in range(10):
+            example_z = np.random.uniform(-60000, 60000, size=[batch_size, vector_size])
+            example_label = np.random.randint(2, size=[batch_size, 1])
+            samples = sess.run(
+                    g_model,
+                    feed_dict={input_z: example_z, input_label: example_label})
+            correct = 0
+            for index, element in enumerate(samples):
+                prediction = predicate_1(element)
+                if prediction == labels_feed[index]:
+                    correct += 1
+            corrects.append(correct)
+        total_count = 0
+        for i in corrects:
+            total_count += i
+        print (total_count / (max_steps * 100))
+        
     return losses
 
-losses = run_training(0.0001, 10000, 100, 3, [[[4, 256],[256, 128],[128, 3]], [[4, 256],[256, 128],[128, 3]]])
+losses = run_training(0.0001, 10000, 100, 3, [[[4, 256],[256, 128],[128, 3]], [[4, 256],[256, 128],[128, 1]]])
 plot_loss(losses)
