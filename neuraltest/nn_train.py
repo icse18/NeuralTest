@@ -1,7 +1,6 @@
-from gan import model_inputs
-from gan_util import model_loss
-from gan_util import model_opt
-from util import plot_loss
+from nn import nn_inputs
+from nn import nn_loss
+from nn import nn_opt
 from util import sample_z
 from pipeline import prepare_data_set
 from synthetic_data_generator import data_generator
@@ -10,16 +9,14 @@ from predicates import predicate_1
 import numpy as np
 import tensorflow as tf
 
-def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer_shapes):
-    vectors, labels = data_generator(predicate_1, 30000, 3, -40000, 40000)
+def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer_shape):
+    vectors, labels = data_generator(predicate_1, 50000, 3, -70000, 70000)
     data_sets = prepare_data_set(vectors, labels)
     losses = []
     
-    hidden_layer_shape_generator, hidden_layer_shape_discriminator = hidden_layer_shapes
-    input_real, input_z, input_label, lr = model_inputs(vector_size)
-    d_loss, g_loss, g_model = model_loss(input_real, input_z, input_label,
-                                    hidden_layer_shape_generator, hidden_layer_shape_discriminator)
-    d_opt, g_opt = model_opt(d_loss, g_loss, lr)
+    input_real, input_z, input_label, lr = nn_inputs(vector_size)
+    network_loss, nn_model = nn_loss(input_real, input_z, input_label, hidden_layer_shape)
+    network_opt = nn_opt(network_loss)
     
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -28,16 +25,13 @@ def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer
             vectors_feed, labels_feed = data_sets.train.next_batch(batch_size)  
             
             feed_dict = { input_real: vectors_feed, input_z: z, input_label: labels_feed, lr: learning_rate}
-            sess.run(d_opt, feed_dict=feed_dict)
-            sess.run(g_opt, feed_dict=feed_dict)
+            sess.run(network_opt, feed_dict=feed_dict)
             
             if step % 100 == 0:
-                train_loss_d = d_loss.eval({input_z: z, input_real: vectors_feed, input_label: labels_feed})
-                train_loss_g = g_loss.eval({input_z: z, input_real: vectors_feed, input_label: labels_feed})
+                train_loss_nn = network_loss.eval({input_z: z, input_real: vectors_feed, input_label: labels_feed})
                 print("Epoch {}/{}...".format(step, max_steps),
-                          "Discriminator Loss: {:.4f}...".format(train_loss_d),
-                          "Generator Loss: {:.4f}...".format(train_loss_g))
-                losses.append((train_loss_d, train_loss_g))
+                          "Generator Loss: {:.4f}...".format(train_loss_nn))
+                losses.append(train_loss_nn)
         
         
         corrects = []
@@ -45,7 +39,7 @@ def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer
             example_z = sample_z(-60000, 60000, [batch_size, vector_size])
             example_label = np.random.randint(2, size=[batch_size, 1])
             samples = sess.run(
-                    g_model,
+                    nn_model,
                     feed_dict={input_z: example_z, input_label: example_label})
             correct = 0
             for index, element in enumerate(samples):
@@ -60,5 +54,5 @@ def run_training(learning_rate, max_steps, batch_size, vector_size, hidden_layer
         
     return losses
 
-losses = run_training(0.0001, 1000, 100, 3, [[[4, 256],[256, 128],[128, 3]], [[4, 256],[256, 128],[128, 1]]])
-plot_loss(losses)
+losses = run_training(0.0001, 500000, 100, 3, [[4, 256],[256, 128],[128, 3]])
+# plot_loss(losses)

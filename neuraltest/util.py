@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import random
 
@@ -28,3 +29,6 @@ def uniform_vector(minimum, maximum, size):
         count += 1
         vector.append(random.uniform(minimum, maximum))
     return vector
+
+def sample_z(low, high, size):
+    return np.random.uniform(low, high, size=size)

@@ -1,11 +1,7 @@
 from gan import generator
 from gan import discriminator
 import tensorflow as tf
-import numpy as np
 import random
-
-def sample_z(m, n):
-    return np.random.uniform(-1., 1., size=[m, n])
 
 def model_loss(input_real, input_z, input_label, hidden_layer_shape_generator, hidden_layer_shape_discriminator):
     g_model = generator(input_z, input_label, hidden_layer_shape_generator)
@@ -19,7 +15,7 @@ def model_loss(input_real, input_z, input_label, hidden_layer_shape_generator, h
                                                                          labels=tf.fill(tf.shape(d_model_fake),
                                                                                         random.uniform(0.0, 0.3))))
     d_loss = d_loss_real + d_loss_fake
-    #g_loss = tf.reduce_mean(tf.square(input_real - g_model))
+    # g_loss = tf.reduce_mean(tf.square(input_real - g_model))
     g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = d_logits_fake, labels = tf.ones_like(d_model_fake)))
     return d_loss, g_loss, g_model
 
