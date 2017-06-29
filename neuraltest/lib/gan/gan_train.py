@@ -6,7 +6,6 @@ from util import sample_z
 from pipeline import prepare_data_set
 from synthetic_data_generator import data_generator
 from predicates import predicate_1
-
 import numpy as np
 import tensorflow as tf
 
