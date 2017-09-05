@@ -1,10 +1,24 @@
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
 def show_all_variables():
     model_vars = tf.trainable_variables()
     slim.model_analyzer.analyze_vars(model_vars, print_info=True)
+
+def evaluate_samples(predicate, sample_vectors, batch_labels):
+    correct = 0
+    for index, sample_vector in enumerate(sample_vectors):
+        if batch_labels[index] == predicate(sample_vector):
+            correct += 1
+    return correct
+
+def visualize_results(corrects):
+    epochs = [epoch + 1 for epoch in range(len(corrects))]
+    plt.plot(epochs, corrects)
+    plt.show()
 
 def concat(x, y):
     return tf.concat([x, y], 1)

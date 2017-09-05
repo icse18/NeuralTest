@@ -5,6 +5,7 @@ import re
 import tensorflow as tf
 import numpy as np
 from utils import *
+from data_pipeline import predicate_1
 
 class cgan(object):
     def __init__(self, sess, epoch, batch_size, datasets, checkpoint_dir, result_dir, log_dir):
@@ -150,6 +151,7 @@ class cgan(object):
             counter = 1
             print("Restore checkpoint unsuccessful")
 
+        corrects = []
         # loop for epoch
         start_time = time.time()
         for epoch in range(start_epoch, self.epoch):
@@ -178,6 +180,12 @@ class cgan(object):
                 print("Epoch: [%2d] [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" % (epoch, idx, self.num_batches, time.time() - start_time, d_loss, g_loss))
 
                 # save training result for every 100 steps
+            samples = self.sess.run(self.fake_vectors,
+                                    feed_dict={self.vectors: batch_vectors,
+                                               self.labels: batch_labels,
+                                               self.noise: batch_z})
+
+            corrects.append(evaluate_samples(predicate_1, samples, batch_labels))
 
             # after an epoch, start_batch_id is set to zero
             # non-zero value is only for the first epoch after loading pre-trained model
@@ -189,9 +197,11 @@ class cgan(object):
         # save model for final step
         self.save(self.checkpoint_dir, counter)
 
+        visualize_results(corrects)
+
     @property
     def model_dir(self):
-        return "{}_{}_{}_{}_{}".format("predicate1", self.batch_size, self.vector_dim, self.label_dim)
+        return "datasetname:{}_batchsize:{}_vectordim:{}_labeldim:{}".format("predicate_1", self.batch_size, self.vector_dim, self.label_dim)
 
     def save(self, checkpoint_dir, step):
         checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)

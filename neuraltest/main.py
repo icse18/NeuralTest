@@ -52,7 +52,7 @@ def main():
         exit()
 
     # generate data
-    vectors, labels = synthetic_data_generator(predicate_1, 10000, -1000, 1000, 3)
+    vectors, labels = synthetic_data_generator(predicate_1, 30000, -10000, 10000, 3)
     datasets = prepare_data_sets(vectors, labels, 5000)
 
     # open session
