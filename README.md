@@ -7,8 +7,7 @@ One of the core interest of our research group is on Software Testing Tool and t
 GANs are a type of artificial intelligence algorithms used in unsupervised machine learning, implemented by a system of two neural networks competing against each other in a zero-sum game framework. They were first introduced by Ian Goodfellow et al. in 2014.
 
 ## Generative Adversarial Networks (GANs)
-### Lists  
-
+## Lists  
 *Name* | *Paper Link* | *Value Function*
 :---: | :---: | :--- |
 **GAN** | [Arxiv](https://arxiv.org/abs/1406.2661) | <img src = 'assets/equations/GAN.png' height = '70px'>
@@ -26,7 +25,7 @@ GANs are a type of artificial intelligence algorithms used in unsupervised machi
 We apply an extension of generative adversarial networks in a conditional setting, CGAN. In the GAN framework, a “generator” is tasked with fooling a “discriminator” into believing that its own samples are real data. We add the capability for each network to condition on some arbitrary external data which describes the vector being generated or discriminated. By varying the conditional information provided to CGAN, we can use the resulting generative model to generate vectors with specific attributes from nothing but random noise. We evaluate the likelihood of vectors satisfying the predicate under the generative model, and examine how to deterministically control vectors attributes by modifying the conditional information provided to the model.
 
 ## CGAN structure
-<img src = 'assets/etc/CGAN.png' height = '600px'>
+<img src = 'assets/img/CGAN.png' height = '600px'>
 
 ## Contributing changes
 
