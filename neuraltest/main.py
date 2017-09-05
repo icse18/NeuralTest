@@ -54,7 +54,7 @@ def main():
     # generate data
     vectors, labels = synthetic_data_generator(predicate_1, 10000, -1000, 1000, 3)
     datasets = prepare_data_sets(vectors, labels, 5000)
-    
+
     # open session
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
         gan = cgan(sess, epoch=args.epoch, batch_size=args.batch_size, datasets=datasets,
